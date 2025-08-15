@@ -111,6 +111,7 @@ executable dvd
   build-depends:
     dvd
   hs-source-dirs: app
+  ghc-options: -Wall -rtsopts -threaded
 
 test-suite test
   import: base
