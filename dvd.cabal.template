@@ -1,0 +1,71 @@
+cabal-version: 3.0
+name:          dvd
+version:       0.0.1
+synopsis:      reactive-banana project
+description:
+
+homepage:      http://github.com/yaitskov/dvd
+license:       BSD-3-Clause
+author:        Daniil Iaitskov
+maintainer:    dyaitskov@gmail.com
+copyright:     Daniil Iaitkov 2025
+category:      System
+build-type:    Simple
+bug-reports:   https://github.com/yaitskov/dvd/issues
+extra-doc-files:
+  changelog.md
+tested-with:
+  GHC == { 9.10.1, 9.12.2 }
+
+source-repository head
+  type:
+    git
+  location:
+    https://github.com/yaitskov/dvd.git
+
+common base
+  default-language: GHC2024
+  ghc-options: -Wall
+  default-extensions:
+    DefaultSignatures
+    NoImplicitPrelude
+    OverloadedLabels
+    OverloadedStrings
+    TemplateHaskell
+  build-depends:
+    , base >=4.7 && < 5
+    , bytestring >= 0.12.1 && < 1
+    , reactive-banana
+    , relude >= 1.2.2 && < 2
+    , unliftio < 1
+
+library
+  import: base
+  hs-source-dirs: src
+  exposed-modules:
+    Interview
+  autogen-modules:
+    Paths_dvd
+  build-depends:
+    , deepseq                 < 2
+    , filepath                < 2
+    , mtl                     < 3
+
+
+test-suite test
+  import: base
+  type: exitcode-stdio-1.0
+  main-is: Driver.hs
+  other-modules:
+    Discovery
+  hs-source-dirs:
+    test
+  ghc-options: -Wall -rtsopts -threaded -main-is Driver
+  build-depends:
+      directory
+    , tasty
+    , tasty-discover
+    , tasty-hunit
+    , tasty-quickcheck
+    , dvd
+    , unliftio
