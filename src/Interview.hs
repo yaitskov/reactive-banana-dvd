@@ -2,20 +2,16 @@
 {-# LANGUAGE ApplicativeDo #-}
 module Interview where
 
-import Control.Concurrent
+import Control.Concurrent ( threadDelay, forkIO )
 import Reactive.Banana
 import Reactive.Banana.Frameworks
-import Termbox.Banana as TB
-
 import Relude
-
-
+import Termbox.Banana as TB
 
 main :: IO ()
 main = TB.run program >>= \case
   Left e -> fail $ show e
   Right _ -> pure ()
-
 
 program :: Inputs -> MomentIO (Outputs Key)
 program i = do
@@ -31,11 +27,10 @@ program i = do
   -- whenE :: Behavior Bool -> Event a -> Event a
   -- accumB :: MonadMoment m => a -> Event (a -> a) -> m (Behavior a)
   -- filterE :: (a -> Bool) -> Event a -> Event a
-  -- let speed :: Event (Int -> Int) = pure (\case KeyArrowUp -> (+1); KeyArrowDown -> flip (-) 1; _ -> (+0)) <@> keys i
-  -- speed' :: Behavior Int <- stepper 1 ((fmap (flip (-) 1) speed) <@ filterE (==KeyArrowDown) (keys i))
-  -- let plusSpeed :: Behavior (Int -> Int) =  (+) <$> speed
-  -- let plusSpeed' :: Event (Int -> Int) = speed <@ tickEvent
-  xPos :: Behavior Int <- accumB 0 ( (+1) <$ tickEvent)
+  speed :: Behavior Int <- accumB 1 $ unions [ (\a -> a + 1) <$ filterE (==KeyArrowUp) (keys i)
+                                             , (\a -> a - 1) <$ filterE (==KeyArrowDown) (keys i)
+                                             ]
+  xPos :: Behavior Int  <- accumB 0 ((+) <$> (speed <@ tickEvent))
   effectiveSize <- stepper (initialSize i) (resizes i)
   let firstColumn :: Behavior (Int, Int) = (\es x -> ((width es - txtLen) `div` 2, x `mod` height es)) <$> effectiveSize <*> xPos
   pure $ Outputs
